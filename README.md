@@ -2,13 +2,11 @@
 
 Each ArUco represents a token.
 
-The tokens' meaning and grammer can see [grammer.md](./grammer.md).
+The tokens' meaning and grammer can see [grammer.md](grammer.md).
 
 An app can detect aruco and determine whether the syntax is correct or not.
 
-<video id="video" controls="" preload="none" poster="封面">
-    <source id="mp4" src="./demo.mp4" type="video/mp4">
-</videos>
+[![demo](demo.jpg)](demo.mp4)
 
 ## Getting Started
 

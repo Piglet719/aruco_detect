@@ -1,0 +1,4 @@
+D:/internship/NCU/aruco_detect/android/app/.cxx/Debug/2g603r42/armeabi-v7a/CMakeFiles/cpufeatures.dir
+D:/internship/NCU/aruco_detect/android/app/.cxx/Debug/2g603r42/armeabi-v7a/CMakeFiles/native-lib.dir
+D:/internship/NCU/aruco_detect/android/app/.cxx/Debug/2g603r42/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/internship/NCU/aruco_detect/android/app/.cxx/Debug/2g603r42/armeabi-v7a/CMakeFiles/rebuild_cache.dir

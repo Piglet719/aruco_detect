@@ -1,0 +1,7 @@
+Executable : C:\Users\USER\AppData\Local\Android\Sdk\cmake\3.18.1\bin\ninja.exe
+arguments : 
+-C
+D:\internship\NCU\aruco_detect\android\app\.cxx\Debug\2g603r42\armeabi-v7a
+native-lib
+jvmArgs : 
+

@@ -6,7 +6,9 @@ The tokens' meaning and grammer can see [grammer.md](./grammer.md).
 
 An app can detect aruco and determine whether the syntax is correct or not.
 
-![demo](./demo.mp4)
+<video id="video" controls="" preload="none" poster="封面">
+    <source id="mp4" src="./demo.mp4" type="video/mp4">
+</videos>
 
 ## Getting Started
 

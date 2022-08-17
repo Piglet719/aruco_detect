@@ -6,7 +6,7 @@ The tokens' meaning and grammer can see [grammer.md](grammer.md).
 
 An app can detect aruco and determine whether the syntax is correct or not.
 
-[![demo](demo.jpg)](demo.mp4)
+![demo](demo.gif)
 
 ## Getting Started
 

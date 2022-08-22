@@ -1,12 +1,12 @@
-# aruco_detect
+# aruco_detection
 
 Each ArUco represents a token.
 
 The tokens' meaning and grammer can see [grammer.md](grammer.md).
 
-An app can detect aruco and determine whether the syntax is correct or not.
+The app can detect aruco and determine whether the syntax is correct or not and convert to the scratch animation.
 
-![demo](demo.gif)
+![demo](demo2.gif)
 
 ## Getting Started
 
@@ -34,6 +34,10 @@ Because flutter doesn't include ArUco library, we need use OpenCV4 with contrib 
 3. Select the picture and click detect (the qrcode icon).
 
 4. Then, you can see the green mark and if the code is incorrect, the mark will present red.
+
+5. If the code is correct, then you can click the JS icon to convert to json and save it automatically. You can also upload the json and get a url.
+
+6. After getting the url, you can click the video icon to go to the scratch website. Import the written code, change the url and click the green flag, then you can see the numbers sort correctly.
 
 #### References
 

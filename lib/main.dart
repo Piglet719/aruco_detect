@@ -14,14 +14,18 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:image/image.dart' as IMG;
 import 'package:flutter/src/widgets/image.dart' as WIMG;
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-
-void main() => runApp(MyApp());
+void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  runApp(MyApp());
+}
 
 int cnt = 0;
 int imgWidth = 0;
 int imgHeight = 0;
-
 
 class MyApp extends StatelessWidget {
   @override
@@ -43,6 +47,12 @@ class _HomePage extends State<MyHomePage> {
   var _imgPath;
   int detected = 0;
   final picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    FlutterNativeSplash.remove();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,13 +114,7 @@ class _HomePage extends State<MyHomePage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            _ImageView()
-          ],
-        ),
-      ),
+      body: _ImageView(),
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         shape: CircularNotchedRectangle(),
@@ -123,7 +127,6 @@ class _HomePage extends State<MyHomePage> {
                 },
                 icon: Icon(Icons.switch_account)
             ),
-            SizedBox(),
             IconButton(
                 onPressed: () async{
                   if (_imgPath == null) {
@@ -162,6 +165,35 @@ class _HomePage extends State<MyHomePage> {
                 },
                 icon: Icon(Icons.qr_code_scanner)
             ),
+            SizedBox(),
+            IconButton(
+                onPressed: (){
+                  if (_imgPath == null) {
+                    Fluttertoast.showToast(
+                        msg: "Please select the photo first!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey,
+                        textColor: Colors.white,
+                        fontSize: 16.0
+                    );
+                  }
+                  else {
+                    setState(() {
+                      detected = 2;
+                    });
+                    _ImageView();
+                  }
+                },
+                icon: Icon(Icons.javascript_sharp)
+            ),
+            IconButton(
+                onPressed: (){
+                  _launchScratch();
+                },
+                icon: Icon(Icons.video_call_outlined)
+            ),
           ],
         ),
       ),
@@ -181,39 +213,51 @@ class _HomePage extends State<MyHomePage> {
           child: Text("Please select the photo or take a picture")
       );
     }
-    else if (detected == 0){
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Align(
-            alignment: Alignment.center,
+    else if (detected == 0) {
+      return SingleChildScrollView(
+          child: Center(
             child: WIMG.Image.file(
               File(_imgPath),
               width: 300,
             ),
-          ),
-        ],
+          )
+      );
+    }
+    else if (detected == 1) {
+      return SingleChildScrollView(
+          child: FutureBuilder(
+              future: getImg(_imgPath),
+              builder: (BuildContext context, AsyncSnapshot<UI.Image>snapshot){
+                return CustomPaint(
+                  painter: draw(snapshot.data),
+                );
+              }
+          )
       );
     }
     else {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Align(
-              alignment: Alignment.center,
-              child: FutureBuilder(
-                  future: getImg(_imgPath),
-                  builder: (BuildContext context, AsyncSnapshot<UI.Image>snapshot){
-                    return CustomPaint(
-                      painter: draw(snapshot.data),
-                    );
-                  }
-              )
-          ),
-        ],
-      );
+      if (json.isEmpty) {
+        return Center(
+            child: Text("Please sort the ArUco correctly!")
+        );
+      }
+      else {
+        return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(json),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.upload_file_outlined),
+                  label: Text("上傳 json"),
+                  onPressed: (){
+                    _launchFileCoffee();
+                  },
+                ),
+              ],
+            )
+        );
+      }
     }
   }
 
@@ -265,5 +309,19 @@ class _HomePage extends State<MyHomePage> {
 
     new File(path)
       ..writeAsBytesSync(IMG.encodePng(thumbnail));
+  }
+
+  _launchScratch() async {
+    Uri _url = Uri(scheme: 'https', host: 'ys-fang.github.io', path: 'OSEP/app/');
+    if (!await launchUrl(_url, mode: LaunchMode.externalNonBrowserApplication)) {
+      throw 'Could not launch $_url';
+    }
+  }
+
+  _launchFileCoffee() async {
+    Uri _url = Uri(scheme: 'https', host: 'file.coffee');
+    if (!await launchUrl(_url, mode: LaunchMode.externalNonBrowserApplication)) {
+      throw 'Could not launch $_url';
+    }
   }
 }

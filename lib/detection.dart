@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:core';
 import 'dart:ffi';
 import 'package:aruco_detect/native_add.dart';
 import 'package:aruco_detect/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as UI;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 int x = 0;
 int errorId = 0;
@@ -19,14 +22,16 @@ Pointer<Double> bRY = bRYFunc();
 Pointer<Double> bLX = bLXFunc();
 Pointer<Double> bLY = bLYFunc();
 
-int addX() {
-  if (x < cnt) {
-    x++;
-  }
-  else {
-    return -1;
-  }
-  return -1;
+var codeMap = new Map();
+var defineMap = new Map();
+var repeatMap = new Map();
+var setItemList = [];
+var replaceItemList = [];
+String json = '';
+int idx = 0;
+
+void addX() {
+  x++;
 }
 
 int getTokenNum() {
@@ -54,20 +59,20 @@ class draw extends CustomPainter {
       ..strokeWidth = 2.5
       ..color = Colors.red;
     if(img != null) {
-      canvas.drawImage(img!, Offset(-150, 0), paint);
+      canvas.drawImage(img!, Offset(30, 0), paint);
       for (int i = 0 ; i < errorId; i++) {
-        canvas.drawCircle(Offset((cX.elementAt(i).value / 4) - 150, (cY.elementAt(i).value / 4) + 10), 2, paint2);
-        canvas.drawLine(Offset((tLX.elementAt(i).value / 4) - 150, (tLY.elementAt(i).value / 4) + 10), Offset((tRX.elementAt(i).value / 4) - 150, (tRY.elementAt(i).value / 4) + 10), paint);
-        canvas.drawLine(Offset((tRX.elementAt(i).value / 4) - 150, (tRY.elementAt(i).value / 4) + 10), Offset((bRX.elementAt(i).value / 4) - 150, (bRY.elementAt(i).value / 4) + 10), paint);
-        canvas.drawLine(Offset((bRX.elementAt(i).value / 4) - 150, (bRY.elementAt(i).value / 4) + 10), Offset((bLX.elementAt(i).value / 4) - 150, (bLY.elementAt(i).value / 4) + 10), paint);
-        canvas.drawLine(Offset((bLX.elementAt(i).value / 4) - 150, (bLY.elementAt(i).value / 4) + 10), Offset((tLX.elementAt(i).value / 4) - 150, (tLY.elementAt(i).value / 4) + 10), paint);
+        canvas.drawCircle(Offset((cX.elementAt(i).value / 4) + 30, (cY.elementAt(i).value / 4) + 10), 2, paint2);
+        canvas.drawLine(Offset((tLX.elementAt(i).value / 4) + 30, (tLY.elementAt(i).value / 4) + 10), Offset((tRX.elementAt(i).value / 4) + 30, (tRY.elementAt(i).value / 4) + 10), paint);
+        canvas.drawLine(Offset((tRX.elementAt(i).value / 4) + 30, (tRY.elementAt(i).value / 4) + 10), Offset((bRX.elementAt(i).value / 4) + 30, (bRY.elementAt(i).value / 4) + 10), paint);
+        canvas.drawLine(Offset((bRX.elementAt(i).value / 4) + 30, (bRY.elementAt(i).value / 4) + 10), Offset((bLX.elementAt(i).value / 4) + 30, (bLY.elementAt(i).value / 4) + 10), paint);
+        canvas.drawLine(Offset((bLX.elementAt(i).value / 4) + 30, (bLY.elementAt(i).value / 4) + 10), Offset((tLX.elementAt(i).value / 4) + 30, (tLY.elementAt(i).value / 4) + 10), paint);
       }
       if (errorId != cnt) {
-        canvas.drawCircle(Offset((cX.elementAt(errorId).value / 4) - 150, (cY.elementAt(errorId).value / 4) + 10), 2, paint3);
-        canvas.drawLine(Offset((tLX.elementAt(errorId).value / 4) - 150, (tLY.elementAt(errorId).value / 4) + 10), Offset((tRX.elementAt(errorId).value / 4) - 150, (tRY.elementAt(errorId).value / 4) + 10), paint3);
-        canvas.drawLine(Offset((tRX.elementAt(errorId).value / 4) - 150, (tRY.elementAt(errorId).value / 4) + 10), Offset((bRX.elementAt(errorId).value / 4) - 150, (bRY.elementAt(errorId).value / 4) + 10), paint3);
-        canvas.drawLine(Offset((bRX.elementAt(errorId).value / 4) - 150, (bRY.elementAt(errorId).value / 4) + 10), Offset((bLX.elementAt(errorId).value / 4) - 150, (bLY.elementAt(errorId).value / 4) + 10), paint3);
-        canvas.drawLine(Offset((bLX.elementAt(errorId).value / 4) - 150, (bLY.elementAt(errorId).value / 4) + 10), Offset((tLX.elementAt(errorId).value / 4) - 150, (tLY.elementAt(errorId).value / 4) + 10), paint3);
+        canvas.drawCircle(Offset((cX.elementAt(errorId).value / 4) + 30, (cY.elementAt(errorId).value / 4) + 10), 2, paint3);
+        canvas.drawLine(Offset((tLX.elementAt(errorId).value / 4) + 30, (tLY.elementAt(errorId).value / 4) + 10), Offset((tRX.elementAt(errorId).value / 4) + 30, (tRY.elementAt(errorId).value / 4) + 10), paint3);
+        canvas.drawLine(Offset((tRX.elementAt(errorId).value / 4) + 30, (tRY.elementAt(errorId).value / 4) + 10), Offset((bRX.elementAt(errorId).value / 4) + 30, (bRY.elementAt(errorId).value / 4) + 10), paint3);
+        canvas.drawLine(Offset((bRX.elementAt(errorId).value / 4) + 30, (bRY.elementAt(errorId).value / 4) + 10), Offset((bLX.elementAt(errorId).value / 4) + 30, (bLY.elementAt(errorId).value / 4) + 10), paint3);
+        canvas.drawLine(Offset((bLX.elementAt(errorId).value / 4) + 30, (bLY.elementAt(errorId).value / 4) + 10), Offset((tLX.elementAt(errorId).value / 4) + 30, (tLY.elementAt(errorId).value / 4) + 10), paint3);
       }
     }
   }
@@ -78,35 +83,46 @@ class draw extends CustomPainter {
   }
 }
 
-int ID() {
-  if (getTokenNum() == -1) {
-    return -1;
-  }
-  else if (getTokenNum() == 2) {
+void ID() {
+  if (getTokenNum() == 2) {
     //arrayJ
+    if (!setItemList.contains("j")) {
+      setItemList.add("j");
+    }
+    if (!defineMap.containsKey('set')) {
+      defineMap.addAll({'set':setItemList});
+    }
     addX();
   }
   else if (getTokenNum() == 3) {
     //"arrayPlus"
+    if (!replaceItemList.contains("j+1")) {
+      replaceItemList.add("j+1");
+    }
+    if (!defineMap.containsKey('replace')) {
+      defineMap.addAll({'replace':replaceItemList});
+    }
     addX();
   }
   else if (getTokenNum() == 6) {
     //"boat"
+    if (!replaceItemList.contains("boat")) {
+      replaceItemList.add("boat");
+    }
+    if (!defineMap.containsKey('replace')) {
+      defineMap.addAll({'replace':replaceItemList});
+    }
     addX();
   }
   else {
     errorId = x;
-    return -1;
   }
-  return -1;
 }
 
-int TIME() {
-  if (getTokenNum() == -1) {
-    return -1;
-  }
-  else if (getTokenNum() == 4) {
+void TIME() {
+  if (getTokenNum() == 4) {
     //"arrayLength"
+    repeatMap.addAll({'time':'length'});
     addX();
     stats();
   }
@@ -117,24 +133,28 @@ int TIME() {
   }
   else {
     errorId = x;
-    return -1;
   }
-  return -1;
 }
 
-int stats() {
-  if (getTokenNum() == -1) {
-    return -1;
-  }
-  else if (getTokenNum() == 13 || getTokenNum() == 14 || getTokenNum() == 15 || getTokenNum() == 16 || getTokenNum() == 17) {
+void stats() {
+  if (getTokenNum() == 13 || getTokenNum() == 14 || getTokenNum() == 15 || getTokenNum() == 16 || getTokenNum() == 17) {
     if (getTokenNum() == 13) {
       //"setArray"
+      if (!replaceItemList.contains("j")) {
+        replaceItemList.add("j");
+      }
     }
     else if (getTokenNum() == 14) {
       //"setArrayPlus"
+      if (!replaceItemList.contains("j+1")) {
+        replaceItemList.add("j+1");
+      }
     }
     else if (getTokenNum() == 15) {
       //"setBoat"
+      if (!setItemList.contains("boat")) {
+        setItemList.add("boat");
+      }
     }
     else if (getTokenNum() == 16) {
       //"setI"
@@ -148,15 +168,32 @@ int stats() {
   else if (getTokenNum() == 2 || getTokenNum() == 3 || getTokenNum() == 6) {
     if (getTokenNum() == 2) {
       //"arrayJ"
+      if (!setItemList.contains("j")) {
+        setItemList.add("j");
+      }
+      if (!defineMap.containsKey('set')) {
+        defineMap.addAll({'set':setItemList});
+      }
     }
     else if (getTokenNum() == 3) {
       //"arrayPlus"
+      if (!replaceItemList.contains("j+1")) {
+        replaceItemList.add("j+1");
+      }
+      if (!defineMap.containsKey('replace')) {
+        defineMap.addAll({'replace':replaceItemList});
+      }
     }
     else if (getTokenNum() == 6) {
       //"boat"
+      if (!replaceItemList.contains("boat")) {
+        replaceItemList.add("boat");
+      }
+      if (!defineMap.containsKey('replace')) {
+        defineMap.addAll({'replace':replaceItemList});
+      }
     }
     addX();
-    ID();
   }
   else if (getTokenNum() == 1) {
     //"add"
@@ -178,62 +215,56 @@ int stats() {
     }
     else {
       errorId = x;
-      return -1;
     }
   }
   else if (getTokenNum() == 8) {
     //"if"
+    repeatMap.addAll({'if':'NaN'});
     addX();
     if (getTokenNum() == 9) {
       //"ifCon"
+      if (repeatMap.containsKey('if')) {
+        repeatMap.update('if', (value) => 'JMorethanJplus');
+      }
       addX();
       if (getTokenNum() == 18) {
         //"swap"
+        repeatMap.addAll({'codetype':'swap'});
         addX();
       }
       else {
         errorId = x;
-        return -1;
       }
     }
     else {
       errorId = x;
-      return -1;
     }
   }
   else if (getTokenNum() == 12) {
     //"repeat"
+    codeMap.addAll({'repeat':repeatMap});
     addX();
     TIME();
   }
   else {
     errorId = x;
-    return -1;
   }
-  return -1;
 }
 
-int funcdef() {
-  if (getTokenNum() == -1) {
-    return -1;
-  }
-  else if (getTokenNum() == 7) {
+void funcdef() {
+  if (getTokenNum() == 7) {
     //"define"
+    codeMap.addAll({'define':defineMap});
     addX();
     stats();
   }
   else {
     errorId = x;
-    return -1;
   }
-  return -1;
 }
 
-int plus() {
-  if (getTokenNum() == -1) {
-    return -1;
-  }
-  else if (getTokenNum() == 10) {
+void plus() {
+  if (getTokenNum() == 10) {
     //"iPlus"
   }
   else if (getTokenNum() == 11) {
@@ -241,12 +272,10 @@ int plus() {
   }
   else {
     errorId = x;
-    return -1;
   }
-  return -1;
 }
 
-int match(int i) {
+void match(int i) {
   if (i == 1) {
     stats();
   }
@@ -270,17 +299,42 @@ int match(int i) {
   }
   else {
     errorId = x;
-    return -1;
   }
-  return -1;
 }
 
 void detection() {
   errorId = cnt;
   x = 0;
-  while (x < cnt) {
-    if (match(markerId.elementAt(x).value) == -1) {
-      break;
+  codeMap = new Map();
+  defineMap = new Map();
+  repeatMap = new Map();
+  setItemList = [];
+  replaceItemList = [];
+  json = '';
+  while (errorId == cnt && x < cnt) {
+    match(markerId.elementAt(x).value);
+  }
+  if (errorId == cnt) {
+    json = jsonEncode(codeMap);
+    createFile(json);
+  }
+}
+
+_getLocalFile() async {
+  String dir = (await getExternalStorageDirectory())!.path;
+  return new File('$dir/result${idx}.json');
+}
+
+void createFile(var json) async{
+  var file = await _getLocalFile();
+  idx++;
+  try {
+    bool exists = file.existsSync();
+    if (!exists) {
+      file.createSync();
+      await file.writeAsString(json);
     }
+  } catch (e) {
+    print(e);
   }
 }

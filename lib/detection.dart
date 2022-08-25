@@ -5,8 +5,7 @@ import 'package:aruco_detect/native_add.dart';
 import 'package:aruco_detect/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as UI;
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
 
 int x = 0;
 int errorId = 0;
@@ -28,7 +27,9 @@ var repeatMap = new Map();
 var setItemList = [];
 var replaceItemList = [];
 String json = '';
-int idx = 0;
+String errorMsg = '';
+var responseData = new Map();
+String downloadURL = '';
 
 void addX() {
   x++;
@@ -116,6 +117,7 @@ void ID() {
   }
   else {
     errorId = x;
+    errorMsg = 'Syntax Error';
   }
 }
 
@@ -133,6 +135,7 @@ void TIME() {
   }
   else {
     errorId = x;
+    errorMsg = 'Syntax Error';
   }
 }
 
@@ -215,6 +218,7 @@ void stats() {
     }
     else {
       errorId = x;
+      errorMsg = 'add must connect to number';
     }
   }
   else if (getTokenNum() == 8) {
@@ -234,10 +238,12 @@ void stats() {
       }
       else {
         errorId = x;
+        errorMsg = 'ifCon must connect to swap';
       }
     }
     else {
       errorId = x;
+      errorMsg = 'if must connect to ifCon';
     }
   }
   else if (getTokenNum() == 12) {
@@ -248,6 +254,7 @@ void stats() {
   }
   else {
     errorId = x;
+    errorMsg = 'Syntax Error';
   }
 }
 
@@ -260,6 +267,7 @@ void funcdef() {
   }
   else {
     errorId = x;
+    errorMsg = 'Syntax Error';
   }
 }
 
@@ -272,6 +280,7 @@ void plus() {
   }
   else {
     errorId = x;
+    errorMsg = 'Syntax Error';
   }
 }
 
@@ -299,6 +308,7 @@ void match(int i) {
   }
   else {
     errorId = x;
+    errorMsg = 'Syntax Error';
   }
 }
 
@@ -311,30 +321,25 @@ void detection() {
   setItemList = [];
   replaceItemList = [];
   json = '';
+  errorMsg = '';
+  downloadURL = '';
+  responseData = new Map();
   while (errorId == cnt && x < cnt) {
     match(markerId.elementAt(x).value);
   }
   if (errorId == cnt) {
     json = jsonEncode(codeMap);
-    createFile(json);
+    uploadFile();
   }
 }
 
-_getLocalFile() async {
-  String dir = (await getExternalStorageDirectory())!.path;
-  return new File('$dir/result${idx}.json');
-}
-
-void createFile(var json) async{
-  var file = await _getLocalFile();
-  idx++;
-  try {
-    bool exists = file.existsSync();
-    if (!exists) {
-      file.createSync();
-      await file.writeAsString(json);
-    }
-  } catch (e) {
-    print(e);
-  }
+uploadFile() async {
+  String url = "https://api.upload.io/v1/files/basic";
+  Dio dio = new Dio();
+  dio.options.headers["Authorization"] = 'Bearer public_kW15aumGhMJMi7CrFLvewbctb6kx';
+  dio.options.headers["Content-Type"] = 'application/json';
+  Response response = await dio.post(url, data: json);
+  responseData = response.data;
+  downloadURL = responseData['fileUrl'];
+  //print(response.statusCode);
 }

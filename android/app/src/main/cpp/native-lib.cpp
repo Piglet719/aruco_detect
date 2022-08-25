@@ -1,6 +1,6 @@
 #include <opencv2/aruco.hpp>
 #include <opencv2/opencv.hpp>
-# define MAXSIZE 100
+#define MAXSIZE 100
 
 using namespace cv;
 
@@ -20,11 +20,15 @@ extern "C" {
 
 	// Attributes to prevent 'unused' function from being removed and to make it visible
 	__attribute__((visibility("default"))) __attribute__((used))
-    int detect(uint8_t* str, int imgW, int imgH) {
+    int detect(uint8_t* str) {
 
         String path((char*) str);
 
         Mat inputImage = imread(path);
+
+        Mat outputImage;
+
+        resize(inputImage, outputImage, Size(1200, 2133), 0, 0, 1);
 
         // Load the dictionary that was used to generate the markers.
         Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_6X6_250);
@@ -39,7 +43,7 @@ extern "C" {
         std::vector<int> markerIds;
 
         // Detect the markers in the image
-        aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
+        aruco::detectMarkers(outputImage, dictionary, markerCorners, markerIds, parameters, rejectedCandidates);
 
         if (markerIds.size() > 0) {
             for (int j = 0; j < markerCorners.size(); j++) {

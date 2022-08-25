@@ -10,14 +10,11 @@ import 'dart:typed_data';
 import 'dart:ui' as UI;
 import 'package:aruco_detect/native_add.dart';
 import 'package:aruco_detect/detection.dart';
-import 'package:image_size_getter/file_input.dart';
-import 'package:image_size_getter/image_size_getter.dart';
-import 'package:image/image.dart' as IMG;
-import 'package:flutter/src/widgets/image.dart' as WIMG;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter/services.dart';
 
-void main() {
+void main() async{
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(MyApp());
@@ -85,7 +82,7 @@ class _HomePage extends State<MyHomePage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: ClipOval(
-                        child: WIMG.Image.asset("assets/piglet.jpg", width: 80, height: 80, fit: BoxFit.cover),
+                        child: Image.asset("assets/piglet.jpg", width: 80, height: 80, fit: BoxFit.cover),
                       ),
                     ),
                     Text(
@@ -142,7 +139,7 @@ class _HomePage extends State<MyHomePage> {
                   }
                   else {
                     String str = _imgPath;
-                    cnt = detectFunc(str.toNativeUtf8().cast<Uint8>(), imgWidth, imgHeight);
+                    cnt = detectFunc(str.toNativeUtf8().cast<Uint8>());
                     if (cnt == 0) {
                       Fluttertoast.showToast(
                           msg: "No ArUco was detected",
@@ -160,6 +157,9 @@ class _HomePage extends State<MyHomePage> {
                         detected = 1;
                       });
                       _ImageView();
+                      if (cnt != errorId) {
+                        showAlertDialog(context);
+                      }
                     }
                   }
                 },
@@ -216,7 +216,7 @@ class _HomePage extends State<MyHomePage> {
     else if (detected == 0) {
       return SingleChildScrollView(
           child: Center(
-            child: WIMG.Image.file(
+            child: Image.file(
               File(_imgPath),
               width: 300,
             ),
@@ -248,10 +248,10 @@ class _HomePage extends State<MyHomePage> {
               children: [
                 Text(json),
                 ElevatedButton.icon(
-                  icon: Icon(Icons.upload_file_outlined),
-                  label: Text("上傳 json"),
+                  icon: Icon(Icons.cloud_download),
+                  label: Text("get URL"),
                   onPressed: (){
-                    _launchFileCoffee();
+                    showResultDialog(context);
                   },
                 ),
               ],
@@ -290,25 +290,11 @@ class _HomePage extends State<MyHomePage> {
 
   _openGallery() async {
     var image = await picker.pickImage(source: ImageSource.gallery);
-    _resizeImg(image!.path);
-    File file = File(image.path);
-    final size = ImageSizeGetter.getSize(FileInput(file));
 
     setState(() {
-      imgWidth = size.width;
-      imgHeight = size.height;
       detected = 0;
-      _imgPath = image.path;
+      _imgPath = image!.path;
     });
-  }
-
-  _resizeImg(String path) {
-    IMG.Image img = IMG.decodeImage(new File(path).readAsBytesSync())!;
-
-    IMG.Image thumbnail = IMG.copyResize(img, width: 1200);
-
-    new File(path)
-      ..writeAsBytesSync(IMG.encodePng(thumbnail));
   }
 
   _launchScratch() async {
@@ -318,10 +304,82 @@ class _HomePage extends State<MyHomePage> {
     }
   }
 
-  _launchFileCoffee() async {
-    Uri _url = Uri(scheme: 'https', host: 'file.coffee');
-    if (!await launchUrl(_url, mode: LaunchMode.externalNonBrowserApplication)) {
-      throw 'Could not launch $_url';
-    }
+  showAlertDialog(BuildContext context) {
+    // Init
+    AlertDialog dialog = AlertDialog(
+      title: Text("Error Message"),
+      content: Text(errorMsg),
+      actions: [
+        ElevatedButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+            }
+        ),
+      ],
+    );
+
+    // Show the dialog (showDialog() => showGeneralDialog())
+    showGeneralDialog(
+      context: context,
+      pageBuilder: (context, anim1, anim2) {return Wrap();},
+      transitionBuilder: (context, anim1, anim2, child) {
+        return Transform(
+          transform: Matrix4.translationValues(
+            0.0,
+            (1.0-Curves.easeInOut.transform(anim1.value))*400,
+            0.0,
+          ),
+          child: dialog,
+        );
+      },
+      transitionDuration: Duration(milliseconds: 400),
+    );
+  }
+
+  showResultDialog(BuildContext context) {
+    // Init
+    AlertDialog dialog = AlertDialog(
+      title: Text("URL"),
+      content: Text(downloadURL),
+      actions: [
+        ElevatedButton(
+            child: Text("COPY"),
+            onPressed: () {
+              _copyToClipboard();
+            }
+        ),
+        ElevatedButton(
+            child: Text("CANCEL"),
+            onPressed: () {
+              Navigator.pop(context);
+            }
+        ),
+      ],
+    );
+
+    // Show the dialog (showDialog() => showGeneralDialog())
+    showGeneralDialog(
+      context: context,
+      pageBuilder: (context, anim1, anim2) {return Wrap();},
+      transitionBuilder: (context, anim1, anim2, child) {
+        return Transform(
+          transform: Matrix4.translationValues(
+            0.0,
+            (1.0-Curves.easeInOut.transform(anim1.value))*400,
+            0.0,
+          ),
+          child: dialog,
+        );
+      },
+      transitionDuration: Duration(milliseconds: 400),
+    );
+  }
+
+  Future<void> _copyToClipboard() async {
+    await Clipboard.setData(ClipboardData(text: downloadURL));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Copied to clipboard'),
+    ));
   }
 }

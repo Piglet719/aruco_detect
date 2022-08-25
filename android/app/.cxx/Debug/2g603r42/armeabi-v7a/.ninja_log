@@ -3,3 +3,7 @@
 279	519	682341085	libcpufeatures.a	985e2b80104c96f9
 79	2047	682341087	CMakeFiles/native-lib.dir/src/main/cpp/native-lib.cpp.o	4e481f6ede6842af
 2048	3999	682341089	D:/internship/NCU/aruco_detect/build/app/intermediates/cxx/Debug/2g603r42/obj/armeabi-v7a/libnative-lib.so	fd6ff88f29502276
+27	325	683134705	CMakeFiles/cpufeatures.dir/C_/Users/USER/AppData/Local/Android/Sdk/ndk/21.1.6352462/sources/android/cpufeatures/cpu-features.c.o	aecf4e246c3fa649
+325	1501	683134706	libcpufeatures.a	985e2b80104c96f9
+32	2163	683134706	CMakeFiles/native-lib.dir/src/main/cpp/native-lib.cpp.o	4e481f6ede6842af
+2163	4678	683134709	D:/internship/NCU/aruco_detect/build/app/intermediates/cxx/Debug/2g603r42/obj/armeabi-v7a/libnative-lib.so	fd6ff88f29502276

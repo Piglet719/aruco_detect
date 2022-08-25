@@ -7,7 +7,7 @@ final DynamicLibrary nativeAddLib = Platform.isAndroid
     : DynamicLibrary.process();
 
 // send picture's path to c++, return cnt to dart
-final int Function(Pointer<Uint8>, int, int) detectFunc = nativeAddLib.lookup<NativeFunction<Int Function(Pointer<Uint8>, Int, Int)>>("detect").asFunction();
+final int Function(Pointer<Uint8>) detectFunc = nativeAddLib.lookup<NativeFunction<Int Function(Pointer<Uint8>)>>("detect").asFunction();
 
 // return markerId
 final Pointer<Int> Function() markerIdFunc = nativeAddLib.lookup<NativeFunction<Pointer<Int> Function()>>("markerId").asFunction();
